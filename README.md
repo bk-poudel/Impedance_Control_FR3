@@ -1,0 +1,75 @@
+# Impedance Control for FR3 (Mujoco)
+Simulated impedance-control examples for a 7-DOF FR3 robot using Mujoco and Pinocchio.
+This repository contains a lightweight simulation wrapper around Mujoco and a demo script that runs a joint-space/operational-space impedance controller on the FR3 model. It also includes assets (XML, URDF, meshes) required to simulate and visualize the robot.
+## Highlights
+- FR3 robot model running in Mujoco with Pinocchio-based kinematics/dynamics.
+- Example impedance controller implemented in `impedance.py`.
+- ROS 2 (rclpy) hooks for publishing torques and subscribing to joint states (used by `FR3Sim`).
+- Assets and URDF under the `assets/` folder (models, meshes, Mujoco XMLs).
+## Repository structure
+- `impedance.py` — Example script that runs an operational-space impedance controller using `FR3Sim`.
+- `MujocoSim.py` — Simulation wrapper class `FR3Sim` that wraps Mujoco, Pinocchio and ROS 2 interfaces.
+- `assets/` — Models, XMLs and meshes required by the simulator (e.g. `fr3_on_table.xml`, `fr3.urdf`, `meshes/`).
+## Requirements
+This project was developed and tested on Linux. Required software includes:
+- Python 3.8+ (virtualenv recommended)
+- Mujoco Python bindings (the official `mujoco` package and `mujoco.viewer`) and a valid Mujoco license
+- Pinocchio (Python bindings) for kinematics/dynamics
+- Numpy, SciPy, Matplotlib
+- ROS 2 (e.g., Foxy / Humble / Rolling) with `rclpy` if you want ROS 2 topics to function
+Notes:
+- `rclpy` (ROS 2 Python client) is required by `MujocoSim.py` — if you don't have ROS 2 installed, you can still use parts of the simulation but the ROS publishing/subscribing features will not work.
+- Pinocchio installation can require system packages or building from source; follow the Pinocchio docs for your platform.
+- Mujoco Python bindings require installing the MuJoCo binaries and setting the appropriate environment variables (e.g., `MUJOCO_PY_MUJOCO_PATH` or `MUJOCO_LICENSE_KEY` depending on your setup and mujoco version). See the Mujoco docs.
+## Quick setup (suggested)
+1. Create and activate a virtual environment:
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install -U pip
+```
+2. Install Python packages (example):
+```bash
+# Core numerical packages
+pip install numpy scipy matplotlib
+# Mujoco Python bindings (install according to your Mujoco version and OS)
+pip install mujoco mujoco-viewer
+# Pinocchio: see the Pinocchio installation instructions for the Python bindings
+# (binary wheels may be available for your platform). Example placeholder:
+# pip install pinocchio
+```
+3. Install and source ROS 2 (if you plan to use ROS features):
+Follow the official ROS 2 installation guide for your Ubuntu distribution. After installing, source the ROS 2 setup script before running scripts that import `rclpy`:
+```bash
+source /opt/ros/<distro>/setup.bash
+```
+4. Ensure Mujoco assets are accessible (the repository expects the `assets/` folder alongside the scripts).
+## Running the demo
+- To run the impedance demo (opens Mujoco viewer by default):
+```bash
+python3 impedance.py
+```
+- If you want to run without rendering, modify `FR3Sim(render=False)` in `impedance.py` or create a small runner script that calls:
+```python
+from MujocoSim import FR3Sim
+sim = FR3Sim(render=False)
+# ... your control loop
+```
+## Custom XML / URDF
+`MujocoSim` looks for a default XML at `assets/fr3_on_table.xml` and an URDF at `assets/fr3.urdf`. You can pass a custom `xml_path` to the `FR3Sim` constructor if you want to simulate a different environment:
+```python
+sim = FR3Sim(xml_path='/path/to/your/custom_model.xml')
+```
+## Important implementation notes
+- `FR3Sim` uses Pinocchio for kinematics, Jacobian and dynamics computations (mass matrix, NLE). Some methods append two zeros before calling Pinocchio to match the URDF frame layout — review `MujocoSim.py` before modifying joint indexing.
+- ROS 2 is used to publish a 7-DOF torque vector to the topic `/NS_1/joint_impedance_example_controller/external_torque` and subscribes to `/joint_states`. If your ROS setup uses different topics, adapt these names.
+## Troubleshooting
+- ImportError for `mujoco` or `mujoco.viewer`: confirm Mujoco is installed and your Python environment can find the bindings.
+- `rclpy` import error: install and source a compatible ROS 2 distribution.
+- Pinocchio errors: follow the repository/install instructions for Pinocchio and make sure the URDF and mesh paths are correct.
+## Contributing
+Contributions are welcome. Please open issues for bugs or feature requests and submit PRs for fixes or improvements. Keep changes minimal and include tests or a short usage example when applicable.
+## License
+This project is provided as-is. You may add or change the license as appropriate for your project (e.g., MIT, Apache 2.0).
+## Contact
+For questions, open an issue in this repository or contact the maintainer listed in the repo metadata.
