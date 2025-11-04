@@ -69,7 +69,5 @@ sim = FR3Sim(xml_path='/path/to/your/custom_model.xml')
 - Pinocchio errors: follow the repository/install instructions for Pinocchio and make sure the URDF and mesh paths are correct.
 ## Contributing
 Contributions are welcome. Please open issues for bugs or feature requests and submit PRs for fixes or improvements. Keep changes minimal and include tests or a short usage example when applicable.
-## License
-This project is provided as-is. You may add or change the license as appropriate for your project (e.g., MIT, Apache 2.0).
 ## Contact
 For questions, open an issue in this repository or contact the maintainer listed in the repo metadata.
